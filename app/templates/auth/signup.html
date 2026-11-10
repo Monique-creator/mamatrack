@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Request an account{% endblock %}
+{% block body_class %}auth{% endblock %}
+{% block content %}
+<form class="card auth-card" method="post">
+  <a class="brand" href="{{ url_for('main.home') }}">
+    <img src="{{ url_for('static', filename='img/logo.svg') }}" alt=""><span>MamaTrack</span>
+  </a>
+  <h1>Request an account</h1>
+  <p class="muted">A supervisor approves every new account before it can be used.</p>
+
+  <label for="full_name">Full name</label>
+  <input id="full_name" name="full_name" value="{{ request.form.full_name }}" required>
+
+  <label for="username">Username</label>
+  <input id="username" name="username" value="{{ request.form.username }}" required>
+
+  <label for="role">I work as</label>
+  <select id="role" name="role" required>
+    <option value="">Choose…</option>
+    <option value="nurse" {{ 'selected' if request.form.role == 'nurse' }}>Nurse / Midwife</option>
+    <option value="chw" {{ 'selected' if request.form.role == 'chw' }}>Community Health Worker</option>
+  </select>
+
+  <label for="facility_id">Health facility</label>
+  <select id="facility_id" name="facility_id" required>
+    <option value="">Choose…</option>
+    {% for f in facilities %}
+      <option value="{{ f.id }}" {{ 'selected' if request.form.facility_id == f.id|string }}>{{ f.name }}</option>
+    {% endfor %}
+  </select>
+
+  <label for="password">Password <span class="hint">at least 8 characters</span></label>
+  <input id="password" name="password" type="password" minlength="8" required>
+
+  <label for="confirm">Confirm password</label>
+  <input id="confirm" name="confirm" type="password" minlength="8" required>
+
+  <button class="btn btn-primary btn-block">Create account</button>
+  <p class="muted">Already registered? <a href="{{ url_for('auth.login') }}">Sign in</a></p>
+</form>
+{% endblock %}

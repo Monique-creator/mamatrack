@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}MamaTrack{% endblock %} · MamaTrack</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+  {% for sheet in ['base', 'components', 'pages', 'field', 'responsive'] %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/' ~ sheet ~ '.css') }}">
+  {% endfor %}
+  <link rel="icon" href="{{ url_for('static', filename='img/logo.svg') }}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  {% if g.user %}
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('main.home') }}">
+      <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="">
+      <span>MamaTrack</span>
+    </a>
+    <nav class="nav">
+      {% if g.user.role == 'chw' %}
+        <a href="{{ url_for('chw.field') }}">Field visits</a>
+      {% else %}
+        <a href="{{ url_for('mothers.dashboard') }}">Dashboard <small>Ababyeyi</small></a>
+        {% if can('register_mother') %}<a href="{{ url_for('mothers.register') }}">Register mother</a>{% endif %}
+        {% if can('resolve_conflict') %}<a href="{{ url_for('visits.conflicts') }}">Sync review</a>{% endif %}
+        {% if can('view_summary') %}<a href="{{ url_for('admin.summary') }}">Summary</a>{% endif %}
+        {% if can('manage_users') %}<a href="{{ url_for('admin.users') }}">Users</a>{% endif %}
+      {% endif %}
+      <a href="{{ url_for('main.help_page') }}">Help <small>Ubufasha</small></a>
+    </nav>
+    <div class="who">
+      {% set roles = {'chw': 'CHW', 'nurse': 'Nurse / Midwife', 'supervisor': 'Supervisor'} %}
+      <span>{{ g.user.full_name }} <em>{{ roles[g.user.role] }}</em></span>
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('auth.logout') }}">Sign out</a>
+    </div>
+  </header>
+  {% endif %}
+
+  <main class="page">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <p class="flash flash-{{ category }}" role="status">{{ message }}</p>
+      {% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>
