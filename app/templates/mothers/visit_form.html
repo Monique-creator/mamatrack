@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field_error %}
+{% block title %}Record visit{% endblock %}
+{% block content %}
+{% set data = request.form if request.method == 'POST' else {} %}
+{% set current = visit if visit is defined else none %}
+<div class="narrow">
+  <a class="back" href="{{ url_for('mothers.profile', mother_id=mother.id) }}">← {{ mother.full_name }}</a>
+  <h1>{{ 'Correct completed visit' if current else 'Record visit outcome' }}</h1>
+  <p class="muted">Delivered {{ mother.delivery_date.strftime('%d %b %Y') }} · due {{ mother.due_date.strftime('%d %b %Y') }}</p>
+
+  <form class="card form" method="post" novalidate>
+    <label for="visit_date">Visit date <span class="req">*</span></label>
+    <input id="visit_date" name="visit_date" type="date" min="{{ mother.delivery_date }}" max="{{ today() }}"
+           value="{{ data.visit_date or (current.visit_date if current) or today() }}" required>
+    {{ field_error(errors, 'visit_date') }}
+
+    <fieldset class="choice">
+      <legend>Outcome <span class="req">*</span></legend>
+      {% set picked = data.outcome or (current.outcome if current) %}
+      {% for o in outcomes %}
+        <label><input type="radio" name="outcome" value="{{ o }}" {{ 'checked' if picked == o }}> {{ o }}</label>
+      {% endfor %}
+    </fieldset>
+    {{ field_error(errors, 'outcome') }}
+
+    <label for="note">Note <span class="hint">optional, 200 characters max</span></label>
+    <textarea id="note" name="note" maxlength="200" rows="3">{{ data.note or (current.note if current) or '' }}</textarea>
+    {{ field_error(errors, 'note') }}
+
+    {% if current %}
+      <label for="reason">Reason for the correction <span class="req">*</span></label>
+      <input id="reason" name="reason" value="{{ data.reason or '' }}" required>
+      {{ field_error(errors, 'reason') }}
+    {% endif %}
+
+    <button class="btn btn-primary btn-block">Save visit <small>Bika</small></button>
+  </form>
+</div>
+{% endblock %}

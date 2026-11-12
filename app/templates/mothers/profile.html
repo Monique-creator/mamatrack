@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge, risk_tags %}
+{% block title %}{{ mother.full_name }}{% endblock %}
+{% block content %}
+{% set status = status_of(mother) %}
+<a class="back" href="{{ url_for('mothers.dashboard') }}">← Dashboard</a>
+
+<section class="profile card status-box-{{ status }}">
+  <div class="profile-head">
+    <div>
+      <p class="code">{{ mother.code }} · {{ mother.facility.name }}</p>
+      <h1>{{ mother.full_name }}</h1>
+      {{ badge(mother) }} {{ risk_tags(mother) }}
+    </div>
+    <div class="profile-actions">
+      {% if status in ('on_time', 'due_soon', 'overdue') %}
+        {% if can('record_visit') %}<a class="btn btn-primary" href="{{ url_for('visits.record', mother_id=mother.id) }}">Record visit</a>{% endif %}
+        {% if can('add_risk') %}<a class="btn btn-ghost" href="{{ url_for('visits.add_risk', mother_id=mother.id) }}">Add risk indicator</a>{% endif %}
+      {% endif %}
+      {% if can('edit_mother') %}<a class="btn btn-ghost" href="{{ url_for('mothers.edit', mother_id=mother.id) }}">Edit details</a>{% endif %}
+    </div>
+  </div>
+
+  <dl class="facts">
+    <div><dt>Delivery date</dt><dd>{{ mother.delivery_date.strftime('%d %b %Y') }}</dd></div>
+    <div><dt>Follow-up due <span class="tip" data-tip="Delivery date + 42 days">?</span></dt><dd>{{ mother.due_date.strftime('%d %b %Y') }}</dd></div>
+    <div><dt>Phone</dt><dd>{{ mother.phone or 'Not given' }}</dd></div>
+    <div><dt>Assigned CHW</dt><dd>{{ mother.chw.full_name if mother.chw else 'Not assigned' }}</dd></div>
+  </dl>
+  {% if mother.lost_reason %}<p class="flash flash-info">Lost to follow-up: {{ mother.lost_reason }}</p>{% endif %}
+</section>
+
+<div class="two-col">
+  <section class="card">
+    <h2>Visits</h2>
+    {% for v in mother.visits %}
+      <div class="history-item state-{{ v.state }}">
+        <strong>{{ v.visit_date.strftime('%d %b %Y') }} · {{ v.outcome }}</strong>
+        {% if v.state != 'confirmed' %}<span class="badge badge-{{ 'review' if v.state == 'review' else 'lost' }}">{{ 'Needs review' if v.state == 'review' else 'Not kept' }}</span>{% endif %}
+        <p class="muted">{{ v.note or 'No note' }} · by {{ v.author.full_name if v.author }}{{ ' (synced from field)' if v.source == 'chw' }}</p>
+        {% if v.state == 'confirmed' and can('edit_completed_visit') %}
+          <a class="link-sm" href="{{ url_for('visits.edit_completed', visit_id=v.id) }}">Correct this visit</a>
+        {% endif %}
+      </div>
+    {% else %}
+      <p class="muted">No visit recorded yet.</p>
+    {% endfor %}
+  </section>
+
+  <section class="card">
+    <h2>Risk indicators <span class="tip" data-tip="A concern recorded by a health worker. It is not a diagnosis.">?</span></h2>
+    {% for r in mother.risks %}
+      <div class="history-item {{ '' if r.active else 'is-cleared' }}">
+        <strong>{{ risk_label(r.risk_type) }}</strong>{{ ' · removed' if not r.active }}
+        <p class="muted">{{ r.note or 'No note' }} · by {{ r.author.full_name if r.author }}, {{ r.created_at.strftime('%d %b %Y') }}</p>
+        {% if r.active and can('change_risk') %}
+          <form method="post" action="{{ url_for('visits.clear_risk', risk_id=r.id) }}">
+            <button class="link-sm">Remove tag</button>
+          </form>
+        {% endif %}
+      </div>
+    {% else %}
+      <p class="muted">No risk indicator recorded.</p>
+    {% endfor %}
+  </section>
+</div>
+
+{% if can('mark_lost') and status in ('on_time', 'due_soon', 'overdue') %}
+<details class="card lost-box">
+  <summary>Mark as lost to follow-up</summary>
+  <form method="post" action="{{ url_for('mothers.mark_lost', mother_id=mother.id) }}">
+    <label for="reason">Reason</label>
+    <input id="reason" name="reason" maxlength="200" placeholder="e.g. Moved out of the district" required>
+    <button class="btn btn-danger">Confirm</button>
+  </form>
+</details>
+{% endif %}
+{% endblock %}

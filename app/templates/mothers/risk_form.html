@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field_error %}
+{% block title %}Add risk indicator{% endblock %}
+{% block content %}
+<div class="narrow">
+  <a class="back" href="{{ url_for('mothers.profile', mother_id=mother.id) }}">← {{ mother.full_name }}</a>
+  <h1>Add a risk indicator</h1>
+  <p class="muted">Record a concern you noticed. This flags the case for staff; it is not a diagnosis.</p>
+
+  <form class="card form" method="post" novalidate>
+    <fieldset class="choice choice-stack">
+      <legend>What did you notice? <span class="req">*</span></legend>
+      {% for code, label in risk_types.items() %}
+        <label><input type="radio" name="risk_type" value="{{ code }}" {{ 'checked' if request.form.risk_type == code }}> {{ label }}</label>
+      {% endfor %}
+    </fieldset>
+    {{ field_error(errors, 'risk_type') }}
+
+    <label for="risk_note">Short note <span class="hint">optional, 200 characters max</span></label>
+    <textarea id="risk_note" name="risk_note" maxlength="200" rows="3">{{ request.form.risk_note or '' }}</textarea>
+    {{ field_error(errors, 'risk_note') }}
+
+    <button class="btn btn-danger btn-block">Add risk indicator</button>
+  </form>
+</div>
+{% endblock %}
