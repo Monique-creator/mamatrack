@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Sync review{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Sync review</h1>
+    <p class="muted">These mothers have two different visit records. Keep the correct one; the other stays in the history.</p>
+  </div>
+</div>
+
+{% for m in mothers %}
+<section class="card conflict">
+  <h2><a href="{{ url_for('mothers.profile', mother_id=m.id) }}">{{ m.full_name }}</a> <span class="code">{{ m.code }}</span></h2>
+  <div class="conflict-options">
+    {% for v in m.visits if v.state == 'review' %}
+      <form class="option" method="post" action="{{ url_for('visits.keep_visit', visit_id=v.id) }}">
+        <strong>{{ v.visit_date.strftime('%d %b %Y') }} · {{ v.outcome }}</strong>
+        <p class="muted">By {{ v.author.full_name if v.author }} via {{ 'CHW phone' if v.source == 'chw' else 'web' }}<br>{{ v.note or 'No note' }}</p>
+        <button class="btn btn-primary btn-sm">Keep this record</button>
+      </form>
+    {% endfor %}
+  </div>
+</section>
+{% else %}
+<p class="card empty">Nothing to review. All synced visits agree.</p>
+{% endfor %}
+{% endblock %}
