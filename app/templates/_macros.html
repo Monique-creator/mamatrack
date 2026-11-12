@@ -1,0 +1,17 @@
+{% macro badge(mother) %}
+  {% set status = status_of(mother) %}
+  <span class="badge badge-{{ status }}">
+    {{ status_label[status] }}
+    {% if status == 'overdue' %}· {{ days_overdue(mother) }}d{% endif %}
+  </span>
+{% endmacro %}
+
+{% macro risk_tags(mother) %}
+  {% for risk in mother.active_risks %}
+    <span class="tag-risk" title="A concern recorded by a health worker, not a diagnosis">{{ risk_label(risk.risk_type) }}</span>
+  {% endfor %}
+{% endmacro %}
+
+{% macro field_error(errors, name) %}
+  {% if errors.get(name) %}<p class="field-error">{{ errors[name] }}</p>{% endif %}
+{% endmacro %}

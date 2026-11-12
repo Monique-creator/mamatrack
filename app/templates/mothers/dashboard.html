@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge, risk_tags %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Postnatal follow-up</h1>
+    <p class="muted">Sorted by priority: overdue with a risk first, then the longest overdue.</p>
+  </div>
+  {% if can('register_mother') %}
+    <a class="btn btn-primary" href="{{ url_for('mothers.register') }}">+ Register mother</a>
+  {% endif %}
+</div>
+
+{% set chips = [('overdue', 'Overdue'), ('due_soon', 'Due soon'), ('risk', 'Risk-tagged'),
+                ('completed', 'Completed'), ('review', 'Needs review')] %}
+<div class="stats">
+  {% for key, label in chips %}
+    <a class="stat stat-{{ key }} {{ 'is-active' if chosen == key }}"
+       href="{{ url_for('mothers.dashboard', status=None if chosen == key else key, q=term or None) }}">
+      <strong>{{ counts[key] }}</strong><span>{{ label }}</span>
+    </a>
+  {% endfor %}
+</div>
+
+<form class="search" method="get">
+  <input type="search" name="q" value="{{ term }}" placeholder="Search by name or ID, e.g. MT-0004" aria-label="Search mothers">
+  {% if chosen %}<input type="hidden" name="status" value="{{ chosen }}">{% endif %}
+  <button class="btn btn-ghost">Search <small>Shakisha</small></button>
+  {% if term or chosen %}<a class="clear" href="{{ url_for('mothers.dashboard') }}">Clear</a>{% endif %}
+</form>
+
+<div class="card table-card">
+  <table class="cases">
+    <thead>
+      <tr>
+        <th>Mother</th><th>Delivered</th>
+        <th>Follow-up due <span class="tip" data-tip="Delivery date + 42 days">?</span></th>
+        <th>Status <span class="tip" data-tip="Overdue: the due date has passed and no visit is recorded">?</span></th>
+        <th>Risk indicators</th><th>CHW</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in mothers %}
+      {% set status = status_of(m) %}
+      <tr class="row-{{ status }} {{ 'row-urgent' if status == 'overdue' and m.active_risks }}">
+        <td data-label="Mother">
+          <a class="mother-link" href="{{ url_for('mothers.profile', mother_id=m.id) }}">{{ m.full_name }}</a>
+          <span class="code">{{ m.code }}{% if g.user.role == 'supervisor' %} · {{ m.facility.name }}{% endif %}</span>
+        </td>
+        <td data-label="Delivered">{{ m.delivery_date.strftime('%d %b %Y') }}</td>
+        <td data-label="Due">{{ m.due_date.strftime('%d %b %Y') }}</td>
+        <td data-label="Status">{{ badge(m) }}</td>
+        <td data-label="Risk">{% if m.active_risks %}{{ risk_tags(m) }}{% else %}<span class="muted">None</span>{% endif %}</td>
+        <td data-label="CHW">{{ m.chw.full_name if m.chw else 'Not assigned' }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="empty">No mothers match this search.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
