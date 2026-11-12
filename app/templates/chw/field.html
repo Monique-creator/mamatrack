@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge, risk_tags %}
+{% block title %}Field visits{% endblock %}
+{% block body_class %}field{% endblock %}
+{% block content %}
+<div class="net" id="net-status" data-user="{{ g.user.id }}">Checking connection…</div>
+
+<section class="queue card" id="queue" hidden>
+  <h2>Updates on this phone</h2>
+  <ul id="queue-list"></ul>
+  <button class="btn btn-ghost btn-sm" id="sync-now" type="button">Sync now</button>
+</section>
+
+<h1>My mothers</h1>
+<p class="muted">Tap a mother to log her visit. It saves on your phone first if the network is down.</p>
+
+{% for m in mothers %}
+  {% set status = status_of(m) %}
+  <article class="field-card status-box-{{ status }}">
+    <div class="field-card-head">
+      <div>
+        <h2>{{ m.full_name }}</h2>
+        <p class="code">{{ m.code }} · due {{ m.due_date.strftime('%d %b') }}{% if m.phone %} · <a href="tel:{{ m.phone }}">{{ m.phone }}</a>{% endif %}</p>
+      </div>
+      {{ badge(m) }}
+    </div>
+    {{ risk_tags(m) }}
+    {% if status in ('on_time', 'due_soon', 'overdue') %}
+      <button class="btn btn-primary btn-block open-form" type="button"
+              data-id="{{ m.id }}" data-name="{{ m.full_name }}" data-delivered="{{ m.delivery_date }}">Log visit</button>
+    {% endif %}
+  </article>
+{% else %}
+  <p class="card empty">No mothers are assigned to you yet.</p>
+{% endfor %}
+
+<dialog id="visit-dialog" class="sheet">
+  <form id="visit-form" method="dialog" novalidate>
+    <h2 id="dialog-title">Log visit</h2>
+    <input type="hidden" name="mother_id">
+
+    <label for="f-date">Visit date</label>
+    <input id="f-date" name="visit_date" type="date" max="{{ today() }}" required>
+
+    <fieldset class="choice">
+      <legend>Outcome</legend>
+      {% for o in outcomes %}<label><input type="radio" name="outcome" value="{{ o }}" required> {{ o }}</label>{% endfor %}
+    </fieldset>
+
+    <label for="f-risk">Danger sign noticed? <span class="hint">optional</span></label>
+    <select id="f-risk" name="risk_type">
+      <option value="">None</option>
+      {% for code, label in risk_types.items() %}<option value="{{ code }}">{{ label }}</option>{% endfor %}
+    </select>
+
+    <label for="f-note">Note <span class="hint">200 characters max</span></label>
+    <textarea id="f-note" name="note" maxlength="200" rows="2"></textarea>
+
+    <p class="field-error" id="form-error"></p>
+    <div class="sheet-actions">
+      <button class="btn btn-ghost" value="cancel" formnovalidate>Cancel</button>
+      <button class="btn btn-primary" id="save-visit" value="save">Save visit</button>
+    </div>
+  </form>
+</dialog>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/offline.js') }}"></script>
+{% endblock %}

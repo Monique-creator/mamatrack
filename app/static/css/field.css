@@ -1,0 +1,22 @@
+/* CHW field view */
+.field .page { max-width: 640px; }
+.net { padding: 10px 14px; border-radius: 12px; font-weight: 600; margin-bottom: 16px; }
+.net-on { background: var(--completed-soft); color: var(--completed); }
+.net-off { background: var(--due-soon-soft); color: var(--due-soon); }
+.queue ul { list-style: none; padding: 0; margin: 0 0 12px; }
+.queue li { padding: 10px 0; border-bottom: 1px dashed var(--line); font-size: .92rem; }
+.queue li span { display: block; font-weight: 700; }
+.q-pending span { color: var(--due-soon); }
+.q-synced span, .q-merged span { color: var(--completed); }
+.q-review span { color: var(--review); }
+.q-rejected span { color: var(--overdue); }
+.field-card { background: var(--surface); border: 1px solid var(--line); border-left: 6px solid var(--on-time); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
+.field-card.status-box-overdue { border-left-color: var(--overdue); }
+.field-card-head { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+.field-card h2 { margin: 0; }
+.field-card .btn-block { min-height: 52px; margin-top: 12px; }
+.sheet { width: min(520px, calc(100% - 24px)); border: 0; border-radius: 18px; padding: 20px; color: var(--ink); }
+.sheet::backdrop { background: rgba(30, 36, 51, .45); }
+.sheet label { display: block; font-weight: 600; margin: 14px 0 6px; }
+.sheet .choice label { display: inline-flex; margin: 0 6px 6px 0; }
+.sheet-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
