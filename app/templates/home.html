@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Welcome{% endblock %}
+{% block body_class %}landing{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-text">
+    <p class="eyebrow"><img src="{{ url_for('static', filename='img/logo.svg') }}" alt=""> MamaTrack</p>
+    <h1>No mother missed after the six-week mark.</h1>
+    <p class="lead">MamaTrack helps health centre staff and community health workers see which
+      mothers are due or overdue for their postnatal visit, and which ones carry a recorded risk.</p>
+    <div class="actions">
+      <a class="btn btn-primary" href="{{ url_for('auth.login') }}">Sign in <small>Injira</small></a>
+      <a class="btn btn-ghost" href="{{ url_for('auth.signup') }}">Request an account</a>
+    </div>
+  </div>
+  <ul class="hero-steps">
+    <li><strong>Register</strong> the mother at delivery.</li>
+    <li><strong>Day 42</strong> follow-up date is set for you.</li>
+    <li><strong>Overdue</strong> cases turn red on the dashboard.</li>
+    <li><strong>Risk tags</strong> push urgent cases to the top.</li>
+  </ul>
+</section>
+<section class="why">
+  <div>
+    <h2>Why it matters</h2>
+    <p>Only about 57% of postpartum women in Rwanda receive any postnatal care. The first six weeks
+      after birth are the riskiest, and today the follow-up list lives in spreadsheets.</p>
+  </div>
+  <div>
+    <h2>Who uses it</h2>
+    <p>Nurses and midwives manage the facility list, CHWs log visits from the field even with weak
+      network, and supervisors watch overdue and risk numbers across facilities.</p>
+  </div>
+</section>
+{% endblock %}
