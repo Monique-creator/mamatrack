@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Users{% endblock %}
+{% block content %}
+{% set roles = {'chw': 'CHW', 'nurse': 'Nurse / Midwife', 'supervisor': 'Supervisor'} %}
+<div class="page-head">
+  <div>
+    <h1>User accounts</h1>
+    <p class="muted">Approve sign-up requests, create accounts and disable people who have left.</p>
+  </div>
+</div>
+
+<div class="two-col two-col-wide">
+  <section class="card table-card">
+    <table class="cases">
+      <thead><tr><th>Name</th><th>Role</th><th>Facility</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for p in people %}
+        <tr>
+          <td data-label="Name">{{ p.full_name }}<span class="code">{{ p.username }}</span></td>
+          <td data-label="Role">{{ roles[p.role] }}</td>
+          <td data-label="Facility">{{ p.facility.name if p.facility else 'All facilities' }}</td>
+          <td data-label="Status">
+            {% if p.is_locked() %}<span class="badge badge-overdue">Locked</span>
+            {% elif p.is_active %}<span class="badge badge-completed">Active</span>
+            {% else %}<span class="badge badge-due_soon">Waiting approval</span>{% endif %}
+          </td>
+          <td>
+            {% if p.id != g.user.id %}
+            <form method="post" action="{{ url_for('admin.toggle', user_id=p.id) }}">
+              <button class="btn btn-sm {{ 'btn-ghost' if p.is_active else 'btn-primary' }}">{{ 'Disable' if p.is_active else 'Approve' }}</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <form class="card form" method="post">
+    <h2>Create account</h2>
+    <label for="full_name">Full name</label>
+    <input id="full_name" name="full_name" required>
+    <label for="username">Username</label>
+    <input id="username" name="username" required>
+    <label for="role">Role</label>
+    <select id="role" name="role">
+      {% for key, label in roles.items() %}<option value="{{ key }}">{{ label }}</option>{% endfor %}
+    </select>
+    <label for="facility_id">Facility</label>
+    <select id="facility_id" name="facility_id">
+      <option value="">All facilities (supervisor)</option>
+      {% for f in facilities %}<option value="{{ f.id }}">{{ f.name }}</option>{% endfor %}
+    </select>
+    <label for="password">Temporary password</label>
+    <input id="password" name="password" type="password" minlength="8" required>
+    <button class="btn btn-primary btn-block">Create</button>
+  </form>
+</div>
+{% endblock %}

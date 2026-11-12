@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Summary{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Overdue and risk summary</h1>
+    <p class="muted">{{ 'All facilities' if g.user.role == 'supervisor' else g.user.facility.name }} · counted live from today's records.</p>
+  </div>
+</div>
+
+<section class="card table-card">
+  <table class="cases summary">
+    <thead>
+      <tr><th>Facility</th>{% for key, label in labels.items() %}<th>{{ label }}</th>{% endfor %}<th>Risk-tagged</th></tr>
+    </thead>
+    <tbody>
+      {% for facility, row in table.items() %}
+      <tr>
+        <td data-label="Facility"><strong>{{ facility }}</strong></td>
+        {% for key, label in labels.items() %}
+          <td data-label="{{ label }}" class="{{ 'num-alert' if key == 'overdue' and row[key] }}">{{ row[key] }}</td>
+        {% endfor %}
+        <td data-label="Risk-tagged" class="{{ 'num-alert' if row.risk }}">{{ row.risk }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="8" class="empty">No mothers registered yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+{% if g.user.role == 'supervisor' %}
+<section class="card">
+  <h2>Recent changes</h2>
+  <ul class="audit">
+    {% for e in entries %}
+      <li><time>{{ e.created_at.strftime('%d %b %H:%M') }}</time> <strong>{{ e.user.full_name }}</strong> {{ e.action|replace('_', ' ') }}: {{ e.detail }}</li>
+    {% else %}
+      <li class="muted">No changes logged yet.</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock %}
