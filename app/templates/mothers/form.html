@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field_error %}
+{% set editing = mother is not none %}
+{% block title %}{{ 'Edit details' if editing else 'Register mother' }}{% endblock %}
+{% block content %}
+{% set data = request.form if request.method == 'POST' else {} %}
+<div class="narrow">
+  <a class="back" href="{{ url_for('mothers.profile', mother_id=mother.id) if editing else url_for('mothers.dashboard') }}">← Back</a>
+  <h1>{{ 'Edit ' ~ mother.full_name if editing else 'Register a new mother' }}</h1>
+  <p class="muted">Fields marked <span class="req">*</span> are required. The follow-up date is worked out for you.</p>
+
+  {% if duplicate %}
+  <div class="flash flash-error">
+    <strong>Possible duplicate.</strong> {{ duplicate.full_name }} ({{ duplicate.code }}) is already
+    registered with the same delivery date at this facility.
+    <a href="{{ url_for('mothers.profile', mother_id=duplicate.id) }}">Open existing record</a>
+  </div>
+  {% endif %}
+
+  <form class="card form" method="post" novalidate>
+    <label for="full_name">Mother's full name <span class="req">*</span></label>
+    <input id="full_name" name="full_name" value="{{ data.full_name or (mother.full_name if editing) or '' }}" required>
+    {{ field_error(errors, 'full_name') }}
+
+    <label for="delivery_date">Delivery date <span class="req">*</span></label>
+    <input id="delivery_date" name="delivery_date" type="date" max="{{ today() }}"
+           value="{{ data.delivery_date or (mother.delivery_date if editing) or '' }}" required>
+    {{ field_error(errors, 'delivery_date') }}
+    <p class="due-preview" id="due-preview"></p>
+
+    <label for="facility_id">Place of delivery <span class="req">*</span></label>
+    <select id="facility_id" name="facility_id" required>
+      {% set picked = (data.facility_id or (mother.facility_id if editing) or '')|string %}
+      {% for f in facilities %}
+        <option value="{{ f.id }}" {{ 'selected' if picked == f.id|string }}>{{ f.name }}</option>
+      {% endfor %}
+    </select>
+    {{ field_error(errors, 'facility_id') }}
+
+    <label for="phone">Phone number <span class="hint">optional</span></label>
+    <input id="phone" name="phone" inputmode="tel" value="{{ data.phone or (mother.phone if editing) or '' }}">
+    {{ field_error(errors, 'phone') }}
+
+    <label for="chw_id">Assigned CHW <span class="hint">optional</span></label>
+    <select id="chw_id" name="chw_id">
+      {% set chosen_chw = (data.chw_id or (mother.chw_id if editing) or '')|string %}
+      <option value="">Not assigned</option>
+      {% for c in chws %}
+        <option value="{{ c.id }}" {{ 'selected' if chosen_chw == c.id|string }}>{{ c.full_name }}</option>
+      {% endfor %}
+    </select>
+
+    {% if duplicate %}<input type="hidden" name="confirm_duplicate" value="1">{% endif %}
+    <button class="btn btn-primary btn-block">{{ 'Save changes' if editing else ('Save anyway' if duplicate else 'Register mother') }} <small>Bika</small></button>
+  </form>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/due-date.js') }}"></script>
+{% endblock %}
