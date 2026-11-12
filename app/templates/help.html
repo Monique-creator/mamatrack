@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Help{% endblock %}
+{% block content %}
+<article class="narrow guide">
+  <h1>Quick guide <small>Ubufasha</small></h1>
+  <p class="muted">Everything you need for a normal day, in six steps.</p>
+
+  <ol class="guide-steps">
+    <li><strong>Sign in</strong> with your username and password. After 5 wrong tries the account
+      locks for 15 minutes, and you are signed out after 15 minutes without activity.</li>
+    <li><strong>Register a mother</strong> (nurses) with her name, delivery date and place of
+      delivery. The delivery date cannot be in the future.</li>
+    <li><strong>Check the due date.</strong> MamaTrack adds 42 days to the delivery date. If you
+      correct the delivery date, the due date changes too.</li>
+    <li><strong>Record the visit</strong> with the visit date and outcome. The case moves to
+      Completed and leaves the overdue list.</li>
+    <li><strong>Add a risk indicator</strong> if you notice a danger sign. It is a note of concern,
+      not a diagnosis, and it moves overdue cases to the top.</li>
+    <li><strong>Use the filters</strong> on the dashboard: Overdue, Due soon, Risk-tagged and
+      Completed, or search by name or ID.</li>
+  </ol>
+
+  <h2>Colours</h2>
+  <ul class="legend">
+    <li><span class="badge badge-overdue">Overdue</span> due date passed, no visit recorded</li>
+    <li><span class="badge badge-due_soon">Due soon</span> due within the next 7 days</li>
+    <li><span class="badge badge-on_time">On track</span> follow-up is still ahead</li>
+    <li><span class="badge badge-completed">Completed</span> visit recorded by staff</li>
+    <li><span class="badge badge-review">Needs review</span> two different visits were synced</li>
+  </ul>
+
+  <h2>For CHWs in the field</h2>
+  <p>Open <em>Field visits</em> and tap <em>Log visit</em>. With no network the update shows
+    <em>Pending sync</em> and is kept on your phone for at least 14 days. It is sent automatically
+    when the network comes back.</p>
+  <button class="btn btn-ghost no-print" onclick="window.print()">Print this guide</button>
+</article>
+{% endblock %}
