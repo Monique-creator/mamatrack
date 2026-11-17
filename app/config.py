@@ -21,6 +21,7 @@ class Config:
     SESSION_COOKIE_SAMESITE = "Lax"
     SESSION_COOKIE_SECURE = os.environ.get("RENDER") is not None
 
+    TIMEZONE = "Africa/Kigali"
     FOLLOW_UP_DAYS = 42
     DUE_SOON_DAYS = 7
     MAX_FAILED_LOGINS = 5
