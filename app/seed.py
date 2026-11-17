@@ -1,5 +1,6 @@
-from datetime import date, timedelta
+from datetime import timedelta
 
+from .clock import today as local_today
 from .models import Facility, Mother, RiskIndicator, User, Visit, db
 
 DEMO_PASSWORD = "MamaTrack2026"
@@ -45,7 +46,7 @@ def seed_if_empty():
     db.session.add_all(people.values())
     db.session.flush()
 
-    today = date.today()
+    today = local_today()
     for name, days, facility, chw, outcome, risk in MOTHERS:
         delivered = today - timedelta(days=days)
         mother = Mother(full_name=name, delivery_date=delivered, phone="0788000000",

@@ -1,5 +1,7 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
+from zoneinfo import ZoneInfo
 
+from app.clock import today
 from app.models import Mother, RiskIndicator, Visit, db
 from app.status import follow_up_status, prioritise
 
@@ -45,3 +47,7 @@ def test_overdue_with_risk_comes_first_then_longest_overdue(app):
     upcoming = make_mother(5)
     ordered = prioritise([upcoming, late, later_with_risk])
     assert ordered == [later_with_risk, late, upcoming]
+
+
+def test_today_uses_rwanda_time_not_server_time(app):
+    assert today() == datetime.now(ZoneInfo("Africa/Kigali")).date()
