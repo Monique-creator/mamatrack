@@ -1,5 +1,6 @@
-from datetime import date, datetime
+from datetime import datetime
 
+from .clock import today
 from .risks import NOTE_LIMIT, RISK_TYPES, VISIT_OUTCOMES
 
 
@@ -20,7 +21,7 @@ def check_mother(form):
     delivered = parse_date(form.get("delivery_date"))
     if delivered is None:
         errors["delivery_date"] = "Enter a valid delivery date."
-    elif delivered > date.today():
+    elif delivered > today():
         errors["delivery_date"] = "Delivery date cannot be in the future."
 
     phone = form.get("phone", "").strip()
@@ -34,7 +35,7 @@ def check_visit(form, mother):
     visited = parse_date(form.get("visit_date"))
     if visited is None:
         errors["visit_date"] = "Enter a valid visit date."
-    elif visited > date.today():
+    elif visited > today():
         errors["visit_date"] = "Visit date cannot be in the future."
     elif visited < mother.delivery_date:
         errors["visit_date"] = "Visit date cannot be before the delivery date."

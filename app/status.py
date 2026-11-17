@@ -1,6 +1,6 @@
-from datetime import date
-
 from flask import current_app
+
+from .clock import today as local_today
 
 LABELS = {
     "overdue": "Overdue",
@@ -16,7 +16,7 @@ RANK = {"overdue": 1, "review": 2, "due_soon": 3, "on_time": 4, "completed": 5, 
 
 
 def follow_up_status(mother, today=None):
-    today = today or date.today()
+    today = today or local_today()
     if mother.lost_reason:
         return "lost"
     if any(v.state == "review" for v in mother.visits):
@@ -32,7 +32,7 @@ def follow_up_status(mother, today=None):
 
 
 def days_overdue(mother, today=None):
-    today = today or date.today()
+    today = today or local_today()
     return max((today - mother.due_date).days, 0)
 
 
