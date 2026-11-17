@@ -29,6 +29,13 @@ MOTHERS = [
 ]
 
 
+def reset_demo():
+    db.session.remove()
+    db.drop_all()
+    db.create_all()
+    seed_if_empty()
+
+
 def seed_if_empty():
     if User.query.first():
         return

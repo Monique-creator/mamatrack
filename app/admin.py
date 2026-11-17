@@ -2,6 +2,7 @@ from flask import Blueprint, flash, g, redirect, render_template, request, url_f
 
 from .models import AuditLog, Facility, User, db, log
 from .permissions import allowed, visible_mothers
+from .seed import reset_demo
 from .status import LABELS, follow_up_status
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -61,3 +62,11 @@ def summary():
         row["risk"] += bool(mother.active_risks)
     entries = AuditLog.query.order_by(AuditLog.created_at.desc()).limit(15).all()
     return render_template("admin/summary.html", table=table, labels=LABELS, entries=entries)
+
+
+@bp.route("/reset-demo", methods=["POST"])
+@allowed("manage_users")
+def reset():
+    reset_demo()
+    flash("Demo data restored. All test changes were cleared.", "success")
+    return redirect(url_for("admin.users"))
