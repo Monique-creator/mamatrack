@@ -57,4 +57,12 @@
     <button class="btn btn-primary btn-block">Create</button>
   </form>
 </div>
+
+<form class="card form reset-box" method="post" action="{{ url_for('admin.reset') }}">
+  <h2>Reset demo data</h2>
+  <p class="muted">Clears every test change and restores the original demo mothers and accounts,
+    so the next tester sees overdue and open cases again.</p>
+  <label class="check"><input type="checkbox" required> I understand all changes will be lost</label>
+  <button class="btn btn-danger">Reset demo data</button>
+</form>
 {% endblock %}

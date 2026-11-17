@@ -1,4 +1,4 @@
-from app.models import User
+from app.models import Facility, User, db
 
 
 def test_pages_need_login(client):
@@ -39,3 +39,15 @@ def test_new_signup_waits_for_approval(client, login):
 def test_chw_cannot_register_mothers(client, login):
     login("chw.jean")
     assert client.get("/mothers/new").status_code == 403
+
+
+def test_only_supervisor_can_reset_demo_data(client, login):
+    login("chw.jean")
+    assert client.post("/admin/reset-demo").status_code == 403
+
+    client.get("/logout")
+    login("supervisor")
+    db.session.add(Facility(name="Test Facility"))
+    db.session.commit()
+    client.post("/admin/reset-demo")
+    assert Facility.query.count() == 2

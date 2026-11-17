@@ -19,6 +19,11 @@
 .conflict-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .option { border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
 
+.reset-box { max-width: 560px; border-left: 6px solid var(--overdue); }
+.reset-box .check { display: flex; gap: 8px; align-items: center; font-weight: 500; }
+.reset-box .check input { width: auto; min-height: auto; }
+.reset-box .btn { margin-top: 14px; }
+
 .audit { list-style: none; padding: 0; margin: 0; font-size: .9rem; }
 .audit li { padding: 8px 0; border-bottom: 1px dashed var(--line); }
 .audit time { color: var(--ink-soft); margin-right: 8px; }
