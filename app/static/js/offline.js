@@ -54,6 +54,14 @@
     });
   }
 
+  function showSignIn() {
+    render("Signed out · your updates are safe on this phone. ");
+    const link = document.createElement("a");
+    link.href = "/login?next=/field";
+    link.textContent = "Sign in to send them";
+    document.getElementById("net-status").appendChild(link);
+  }
+
   let syncing = false;
 
   async function sync() {
@@ -68,7 +76,7 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ updates: pending }),
       });
-      if (res.status === 401) return render("Signed out · sign in again to send pending updates");
+      if (res.status === 401) return showSignIn();
       const data = await res.json();
       data.results.forEach((r) => {
         const item = queue.find((u) => u.ref === r.ref);

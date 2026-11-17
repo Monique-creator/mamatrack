@@ -1,6 +1,8 @@
-const CACHE = "mamatrack-field-v1";
+const CACHE = "mamatrack-field-v2";
+const OFFLINE_PAGE = "/static/offline.html";
 const SHELL = [
   "/field",
+  OFFLINE_PAGE,
   "/static/css/base.css",
   "/static/css/components.css",
   "/static/css/pages.css",
@@ -18,23 +20,30 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
   event.waitUntil(caches.keys().then((keys) =>
     Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))));
+  self.clients.claim();
 });
 
-// Network first, fall back to the last copy so the CHW page still opens offline.
+function saveCopy(request, response) {
+  if (response.ok && !response.redirected) {
+    const copy = response.clone();
+    caches.open(CACHE).then((cache) => cache.put(request, copy));
+  }
+  return response;
+}
+
+// Network first. Offline, the CHW page and its files come from the cache, and any
+// other page opened without network shows a short offline notice instead of an error.
 self.addEventListener("fetch", (event) => {
-  const url = new URL(event.request.url);
-  if (event.request.method !== "GET" || url.pathname.startsWith("/api/")) return;
-  if (url.pathname !== "/field" && !url.pathname.startsWith("/static/")) return;
+  const request = event.request;
+  const url = new URL(request.url);
+  if (request.method !== "GET" || url.pathname.startsWith("/api/")) return;
+
+  const cacheable = url.pathname === "/field" || url.pathname.startsWith("/static/");
+  if (!cacheable && request.mode !== "navigate") return;
 
   event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        if (response.ok && !response.redirected) {
-          const copy = response.clone();
-          caches.open(CACHE).then((cache) => cache.put(event.request, copy));
-        }
-        return response;
-      })
-      .catch(() => caches.match(event.request))
+    fetch(request)
+      .then((response) => (cacheable ? saveCopy(request, response) : response))
+      .catch(async () => (await caches.match(request)) || caches.match(OFFLINE_PAGE))
   );
 });
