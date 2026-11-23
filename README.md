@@ -100,7 +100,7 @@ On macOS use `python3` instead of `python` in every command below.
 **1. Clone the repository**
 
 ```bash
-git clone https://github.com/YOUR-GITHUB-USERNAME/mamatrack.git
+git clone https://github.com/Monique-creator/mamatrack.git
 cd mamatrack
 ```
 
@@ -234,7 +234,7 @@ through a pull request:
 | #2 | `feature/offline-fallback` | Offline page and safe sign-in when the session expires offline |
 | #3 | `feature/demo-reset` | Supervisor button to restore the demo data |
 | #4 | `fix/chw-buttons-after-reset` | Log visit buttons work again for the CHW after a demo reset |
-| #5 | `docs/readme-update` | Live links, tester tour, offline testing and setup help in the README |
+| #5 | `readme-update` | Live links, tester tour, offline testing and setup help in the README |
 
 The first version was built in 20 small commits, one feature at a time.
 
