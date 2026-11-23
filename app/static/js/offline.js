@@ -4,6 +4,7 @@
   const KEEP_DAYS = 14;
   const dialog = document.getElementById("visit-dialog");
   const form = document.getElementById("visit-form");
+  const openedAt = Date.now();
   const STATE_TEXT = {
     pending: "Pending sync",
     synced: "Synced",
@@ -46,7 +47,9 @@
       `<li class="q-${u.state}"><strong>${esc(u.name)}</strong> · ${esc(u.visit_date)} · ${esc(u.outcome)}
        <span>${STATE_TEXT[u.state] || ""}${u.message ? " · " + esc(u.message) : ""}</span></li>`).join("");
 
-    queue.filter((u) => u.state !== "rejected").forEach((u) => {
+    // Older synced visits are already on the server; only lock buttons for visits that are
+    // still waiting, or were saved since this page was opened.
+    queue.filter((u) => u.state === "pending" || Date.parse(u.recorded_at) > openedAt).forEach((u) => {
       const button = document.querySelector(`.open-form[data-id="${u.mother_id}"]`);
       if (!button) return;
       button.disabled = true;
